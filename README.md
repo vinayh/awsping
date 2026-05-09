@@ -50,99 +50,97 @@ me-south-1 (Bahrain)                        timeout
 
 ```bash
 ➥ ./awsping -http
-Europe (Frankfurt)                   222.56 ms
-Europe (Ireland)                     226.76 ms
-US-East (Virginia)                   349.17 ms
-US-West (California)                 488.12 ms
-US-East (Ohio)                       513.69 ms
-Asia Pacific (Mumbai)                528.51 ms
-US-West (Oregon)                     532.05 ms
-South America (São Paulo)            599.36 ms
-Asia Pacific (Seoul)                 715.92 ms
-Asia Pacific (Sydney)                721.47 ms
-Asia Pacific (Tokyo)                 745.24 ms
-Asia Pacific (Singapore)             847.36 ms
+eu-west-2 (London)                         27.06 ms
+eu-west-3 (Paris)                          31.33 ms
+eu-west-1 (Ireland)                        42.99 ms
+eu-central-1 (Frankfurt)                   44.62 ms
+us-east-1 (N. Virginia)                   167.56 ms
+ca-central-1 (Central)                    176.35 ms
+ap-south-1 (Mumbai)                       383.13 ms
+sa-east-1 (São Paulo)                     382.40 ms
+ap-northeast-1 (Tokyo)                    497.25 ms
+ap-southeast-2 (Sydney)                   572.68 ms
+ap-southeast-6 (New Zealand)              621.30 ms
+me-south-1 (Bahrain)                        timeout
 ```
 
 ## Test via HTTPS
 
 ```bash
 ➥ ./awsping -https
-Europe (Stockholm)                   216.67 ms
-Europe (Frankfurt)                   263.20 ms
-Europe (Paris)                       284.32 ms
-Europe (Milan)                       305.63 ms
-Europe (Ireland)                     327.34 ms
-Europe (London)                      332.17 ms
-Middle East (Bahrain)                590.74 ms
-US-East (N. Virginia)                595.13 ms
-Canada (Central)                     628.44 ms
-US-East (Ohio)                       635.32 ms
-Asia Pacific (Mumbai)                755.56 ms
-Asia Pacific (Hong Kong)             843.90 ms
-US-West (N. California)              870.65 ms
-Asia Pacific (Singapore)             899.50 ms
-Africa (Cape Town)                   912.06 ms
-US-West (Oregon)                     919.34 ms
-South America (São Paulo)            985.93 ms
-Asia Pacific (Tokyo)                1122.67 ms
-Asia Pacific (Seoul)                1138.76 ms
-Asia Pacific (Osaka)                1167.40 ms
-Asia Pacific (Sydney)               1328.90 ms
+eu-west-2 (London)                        189.68 ms
+eu-west-3 (Paris)                         196.65 ms
+eu-west-1 (Ireland)                       197.75 ms
+eu-central-1 (Frankfurt)                  212.76 ms
+us-east-1 (N. Virginia)                   273.25 ms
+ca-central-1 (Central)                    273.32 ms
+ap-south-1 (Mumbai)                       580.50 ms
+sa-east-1 (São Paulo)                     605.01 ms
+ap-northeast-1 (Tokyo)                    765.88 ms
+ap-southeast-2 (Sydney)                   860.53 ms
+ap-southeast-6 (New Zealand)              964.32 ms
+me-south-1 (Bahrain)                        timeout
 ```
 
 ## Test several times
 
 ```bash
 ➥ ./awsping -repeats 3
-Europe (Frankfurt)                    50.13 ms
-Europe (Ireland)                      62.67 ms
-US-East (Virginia)                   126.88 ms
-US-East (Ohio)                       155.37 ms
-US-West (California)                 195.75 ms
-US-West (Oregon)                     206.19 ms
-Asia Pacific (Mumbai)                222.34 ms
-South America (São Paulo)            254.28 ms
-Asia Pacific (Tokyo)                 308.52 ms
-Asia Pacific (Seoul)                 325.93 ms
-Asia Pacific (Sydney)                349.62 ms
-Asia Pacific (Singapore)             378.53 ms
+eu-west-2 (London)                          2.56 ms
+eu-west-3 (Paris)                           8.60 ms
+eu-west-1 (Ireland)                        10.19 ms
+eu-central-1 (Frankfurt)                   13.53 ms
+us-east-1 (N. Virginia)                    78.95 ms
+ca-central-1 (Central)                     80.72 ms
+ap-south-1 (Mumbai)                       184.53 ms
+sa-east-1 (São Paulo)                     187.18 ms
+ap-northeast-1 (Tokyo)                    234.30 ms
+ap-southeast-2 (Sydney)                   278.47 ms
+ap-southeast-6 (New Zealand)              302.51 ms
+me-south-1 (Bahrain)                        timeout
 ```
 
 ## Verbose mode
 
+Verbose level 1 adds an index, the region code column, and the full
+region name (`Region Group (Location)`):
+
 ```bash
 ➥ ./awsping -repeats 3 -verbose 1
       Code            Region                                      Latency
-    0 eu-central-1    Europe (Frankfurt)                         47.39 ms
-    1 eu-west-1       Europe (Ireland)                           62.28 ms
-    2 us-east-1       US-East (Virginia)                        128.45 ms
-    3 us-east-2       US-East (Ohio)                            155.53 ms
-    4 us-west-1       US-West (California)                      194.37 ms
-    5 us-west-2       US-West (Oregon)                          208.91 ms
-    6 ap-south-1      Asia Pacific (Mumbai)                     226.59 ms
-    7 sa-east-1       South America (São Paulo)                 254.67 ms
-    8 ap-northeast-1  Asia Pacific (Tokyo)                      301.97 ms
-    9 ap-northeast-2  Asia Pacific (Seoul)                      323.10 ms
-   10 ap-southeast-2  Asia Pacific (Sydney)                     341.26 ms
-   11 ap-southeast-1  Asia Pacific (Singapore)                  397.47 ms
+    0 eu-west-2       Europe (London)                             2.04 ms
+    1 eu-west-3       Europe (Paris)                              7.85 ms
+    2 eu-west-1       Europe (Ireland)                           10.72 ms
+    3 eu-central-1    Europe (Frankfurt)                         13.06 ms
+    4 eu-central-2    Europe (Zurich)                            17.96 ms
+    5 eu-south-2      Europe (Spain)                             20.60 ms
+    6 eu-south-1      Europe (Milan)                             23.50 ms
+    7 eu-north-1      Europe (Stockholm)                         27.25 ms
+    8 il-central-1    Israel (Tel Aviv)                          60.08 ms
+    9 us-east-1       US East (N. Virginia)                      78.69 ms
+   10 ca-central-1    Canada (Central)                           84.34 ms
+   11 us-east-2       US East (Ohio)                             89.57 ms
 ```
+
+Verbose level 2 also breaks out per-try latencies. If a try errors,
+that cell is shown as `-`; if every try errors, the average column
+shows the error (e.g. `timeout`):
 
 ```bash
 ➥ ./awsping -repeats 3 -verbose 2
-      Code            Region                             Try #1          Try #2          Try #3     Avg Latency
-    0 eu-central-1    Europe (Frankfurt)               45.18 ms        45.46 ms        45.68 ms        45.44 ms
-    1 eu-west-1       Europe (Ireland)                 61.89 ms        62.99 ms        62.98 ms        62.62 ms
-    2 us-east-1       US-East (Virginia)              125.15 ms       126.75 ms       126.49 ms       126.13 ms
-    3 us-east-2       US-East (Ohio)                  154.05 ms       154.28 ms       153.53 ms       153.96 ms
-    4 us-west-1       US-West (California)            196.20 ms       195.05 ms       193.76 ms       195.00 ms
-    5 us-west-2       US-West (Oregon)                204.04 ms       203.97 ms       203.84 ms       203.95 ms
-    6 ap-south-1      Asia Pacific (Mumbai)           175.27 ms       300.68 ms       172.18 ms       216.05 ms
-    7 sa-east-1       South America (São Paulo)       243.48 ms       247.12 ms       248.32 ms       246.31 ms
-    8 ap-northeast-1  Asia Pacific (Tokyo)            324.78 ms       312.70 ms       319.02 ms       318.83 ms
-    9 ap-northeast-2  Asia Pacific (Seoul)            328.96 ms       327.65 ms       326.17 ms       327.59 ms
-   10 ap-southeast-2  Asia Pacific (Sydney)           388.17 ms       347.74 ms       393.58 ms       376.50 ms
-   11 ap-southeast-1  Asia Pacific (Singapore)        409.53 ms       403.61 ms       405.84 ms       406.33 ms
+      Code            Region                                  Try #1          Try #2          Try #3     Avg Latency
+    0 eu-west-2       Europe (London)                        1.95 ms         2.11 ms         2.02 ms         2.03 ms
+    1 eu-west-3       Europe (Paris)                        10.84 ms         7.36 ms         9.65 ms         9.28 ms
+    2 eu-west-1       Europe (Ireland)                      12.04 ms        11.12 ms        11.93 ms        11.70 ms
+    3 eu-central-1    Europe (Frankfurt)                    13.59 ms        13.14 ms        13.27 ms        13.34 ms
+    4 eu-central-2    Europe (Zurich)                       17.67 ms        17.56 ms        17.98 ms        17.74 ms
+    5 eu-south-2      Europe (Spain)                        20.05 ms        19.95 ms        20.86 ms        20.29 ms
+    6 eu-south-1      Europe (Milan)                        22.27 ms        22.39 ms        22.63 ms        22.43 ms
+    7 eu-north-1      Europe (Stockholm)                    27.31 ms        27.19 ms        27.14 ms        27.22 ms
+    8 il-central-1    Israel (Tel Aviv)                     62.50 ms        62.99 ms        60.41 ms        61.97 ms
+    9 us-east-1       US East (N. Virginia)                 78.73 ms        80.20 ms        79.13 ms        79.35 ms
+   10 ca-central-1    Canada (Central)                      85.30 ms        85.26 ms        84.41 ms        84.99 ms
+   11 us-east-2       US East (Ohio)                        90.43 ms        88.41 ms        89.97 ms        89.60 ms
 ```
 
 ## Get Help
@@ -168,11 +166,10 @@ Usage of ./awsping:
 # Get binary file
 
 ```bash
-$ wget https://github.com/ekalinin/awsping/releases/download/0.5.2/awsping.linux.amd64.tgz
-$ tar xzvf awsping.linux.amd64.tgz
+$ wget https://github.com/ekalinin/awsping/releases/latest/download/awsping_linux_amd64.tar.gz
+$ tar xzvf awsping_linux_amd64.tar.gz
 $ chmod +x awsping
 $ ./awsping -v
-0.5.2
 ```
 
 # Build from sources

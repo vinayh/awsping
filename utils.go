@@ -13,7 +13,7 @@ import (
 )
 
 // Version describes application version
-const Version = "2.0.0"
+const Version = "3.0.0"
 
 var (
 	github    = "https://github.com/ekalinin/awsping"

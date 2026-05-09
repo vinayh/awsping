@@ -1,4 +1,4 @@
-FROM golang:1.17-bullseye as build
+FROM golang:1.26-bookworm AS build
 COPY . /build
 WORKDIR /build
 RUN make

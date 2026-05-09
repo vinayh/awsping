@@ -33,5 +33,5 @@ func (r *AWSTarget) GetURL() string {
 // GetIP return IP for AWS target
 func (r *AWSTarget) GetIP() (*net.TCPAddr, error) {
 	tcpURI := fmt.Sprintf("%s.%s.amazonaws.com:80", r.Service, r.Code)
-	return net.ResolveTCPAddr("tcp4", tcpURI)
+	return net.ResolveTCPAddr("tcp", tcpURI)
 }

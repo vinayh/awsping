@@ -64,8 +64,8 @@ func TestOutputShow0(t *testing.T) {
 
 	lo.Show(&regions)
 
-	want := "Africa (Cape Town)                    15.00 ms\n" +
-		"Asia Pacific (Hong Kong)              25.00 ms\n"
+	want := "af-south-1 (Cape Town)                     15.00 ms\n" +
+		"ap-east-1 (Hong Kong)                      25.00 ms\n"
 	got := b.String()
 	if got != want {
 		t.Errorf("Show0 failed:\ngot =%q\nwant=%q", got, want)
@@ -106,9 +106,9 @@ func TestOutputShow2(t *testing.T) {
 	lo.Show(&regions)
 
 	got := b.String()
-	want := "      Code            Region                             Try #1          Try #2     Avg Latency\n" +
-		"    0 af-south-1      Africa (Cape Town)               15.00 ms        17.00 ms        16.00 ms\n" +
-		"    1 ap-east-1       Asia Pacific (Hong Kong)         25.00 ms        26.00 ms        25.50 ms\n"
+	want := "      Code            Region                                  Try #1          Try #2     Avg Latency\n" +
+		"    0 af-south-1      Africa (Cape Town)                    15.00 ms        17.00 ms        16.00 ms\n" +
+		"    1 ap-east-1       Asia Pacific (Hong Kong)              25.00 ms        26.00 ms        25.50 ms\n"
 	if got != want {
 		t.Errorf("Show2 failed:\ngot =%q\nwant=%q", got, want)
 	}

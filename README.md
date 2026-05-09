@@ -26,20 +26,24 @@ Console tool to check the latency to each AWS region
 
 ## Test via TCP
 
+Output shows each region as `<region-code> (<location>)` followed by the
+average latency. Regions whose endpoint can't be reached are reported as
+`timeout` (or a short error) and sort to the bottom.
+
 ```bash
 ➥ ./awsping
-Europe (Frankfurt)                    51.86 ms
-Europe (Ireland)                      62.86 ms
-US-East (Virginia)                   126.39 ms
-US-East (Ohio)                       154.81 ms
-Asia Pacific (Mumbai)                181.09 ms
-US-West (California)                 194.27 ms
-US-West (Oregon)                     211.87 ms
-South America (São Paulo)            246.20 ms
-Asia Pacific (Tokyo)                 309.27 ms
-Asia Pacific (Seoul)                 322.76 ms
-Asia Pacific (Sydney)                346.37 ms
-Asia Pacific (Singapore)             407.91 ms
+eu-west-2 (London)                          1.71 ms
+eu-west-3 (Paris)                           7.33 ms
+eu-west-1 (Ireland)                        10.85 ms
+eu-central-1 (Frankfurt)                   13.36 ms
+us-east-1 (N. Virginia)                    78.44 ms
+ca-central-1 (Central)                     85.02 ms
+ap-south-1 (Mumbai)                       128.78 ms
+sa-east-1 (São Paulo)                     185.57 ms
+ap-northeast-1 (Tokyo)                    231.80 ms
+ap-southeast-2 (Sydney)                   278.39 ms
+ap-southeast-6 (New Zealand)              296.84 ms
+me-south-1 (Bahrain)                        timeout
 ```
 
 ## Test via HTTP

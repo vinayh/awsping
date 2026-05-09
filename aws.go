@@ -1,10 +1,16 @@
 package awsping
 
 import (
+	"errors"
 	"fmt"
+	"net"
 	"sync"
 	"time"
 )
+
+// defaultRequest is shared by every region constructed via NewRegion;
+// http.Client and net.Dialer are safe for concurrent use.
+var defaultRequest = NewAWSRequest()
 
 // CheckType describes a type for a check
 type CheckType int
@@ -24,6 +30,7 @@ const (
 type AWSRegion struct {
 	Name      string
 	Code      string
+	Location  string
 	Service   string
 	Latencies []time.Duration
 	Error     error
@@ -33,13 +40,16 @@ type AWSRegion struct {
 	Request Requester
 }
 
-// NewRegion creates a new region with a name and code
-func NewRegion(name, code string) AWSRegion {
+// NewRegion creates a new region. Location is the city/state/country shown
+// next to the region code in the default output (e.g. "Calgary", "Bahrain",
+// "N. Virginia").
+func NewRegion(name, code, location string) AWSRegion {
 	return AWSRegion{
 		Name:      name,
 		Code:      code,
+		Location:  location,
 		CheckType: CheckTypeTCP,
-		Request:   NewAWSRequest(),
+		Request:   defaultRequest,
 	}
 }
 
@@ -48,14 +58,14 @@ func (r *AWSRegion) CheckLatency(wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	if r.CheckType == CheckTypeHTTP || r.CheckType == CheckTypeHTTPS {
-		r.checkLatencyHTTP(r.CheckType == CheckTypeHTTPS)
+		r.checkLatencyHTTP()
 	} else {
 		r.checkLatencyTCP()
 	}
 }
 
 // checkLatencyHTTP Test Latency via HTTP
-func (r *AWSRegion) checkLatencyHTTP(https bool) {
+func (r *AWSRegion) checkLatencyHTTP() {
 	url := r.Target.GetURL()
 	l, err := r.Request.Do(useragent, url, RequestTypeHTTP)
 	if err != nil {
@@ -81,8 +91,18 @@ func (r *AWSRegion) checkLatencyTCP() {
 	r.Latencies = append(r.Latencies, l)
 }
 
-// GetLatency returns Latency in ms
+// ShortName returns the region as "<code> (<location>)"
+// (e.g. "ca-west-1 (Calgary)", "me-south-1 (Bahrain)").
+func (r *AWSRegion) ShortName() string {
+	return fmt.Sprintf("%s (%s)", r.Code, r.Location)
+}
+
+// GetLatency returns the average latency across successful tries (ms).
+// Returns 0 if no try succeeded.
 func (r *AWSRegion) GetLatency() float64 {
+	if len(r.Latencies) == 0 {
+		return 0
+	}
 	sum := float64(0)
 	for _, l := range r.Latencies {
 		sum += Duration2ms(l)
@@ -90,12 +110,27 @@ func (r *AWSRegion) GetLatency() float64 {
 	return sum / float64(len(r.Latencies))
 }
 
-// GetLatencyStr returns Latency in string
+// GetLatencyStr returns the latency string. If at least one try succeeded,
+// it returns the average; otherwise it returns the most recent error.
 func (r *AWSRegion) GetLatencyStr() string {
-	if r.Error != nil {
-		return r.Error.Error()
+	if len(r.Latencies) == 0 && r.Error != nil {
+		return shortErr(r.Error)
 	}
 	return fmt.Sprintf("%.2f ms", r.GetLatency())
+}
+
+// shortErr returns a concise, column-friendly form of a network error,
+// stripping the noisy "dial tcp <addr>:" prefix from net.OpError.
+func shortErr(err error) string {
+	var ne net.Error
+	if errors.As(err, &ne) && ne.Timeout() {
+		return "timeout"
+	}
+	var oe *net.OpError
+	if errors.As(err, &oe) && oe.Err != nil {
+		return oe.Err.Error()
+	}
+	return err.Error()
 }
 
 // --------------------------------------------
@@ -108,8 +143,14 @@ func (rs AWSRegions) Len() int {
 	return len(rs)
 }
 
-// Less return a result of latency compare between two regions
+// Less compares two regions by latency. Regions with no successful tries
+// sort last so errors appear after live regions.
 func (rs AWSRegions) Less(i, j int) bool {
+	iEmpty := len(rs[i].Latencies) == 0
+	jEmpty := len(rs[j].Latencies) == 0
+	if iEmpty != jEmpty {
+		return !iEmpty
+	}
 	return rs[i].GetLatency() < rs[j].GetLatency()
 }
 
@@ -144,7 +185,7 @@ func (rs AWSRegions) SetDefaultTarget() {
 	})
 }
 
-// SetTarget sets default target instance for all regions
+// SetTarget applies fn to every region, allowing callers to install a custom Target.
 func (rs AWSRegions) SetTarget(fn func(r *AWSRegion)) {
 	for i := range rs {
 		fn(&rs[i])

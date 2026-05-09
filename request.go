@@ -39,9 +39,10 @@ type AWSRequest struct {
 
 // NewAWSRequest creates a new instance of AWSRequest
 func NewAWSRequest() *AWSRequest {
+	const dialTimeout = 5 * time.Second
 	return &AWSRequest{
-		httpClient: &http.Client{},
-		tcpClient:  &net.Dialer{},
+		httpClient: &http.Client{Timeout: dialTimeout},
+		tcpClient:  &net.Dialer{Timeout: dialTimeout},
 	}
 }
 

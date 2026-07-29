@@ -2,6 +2,7 @@ package awsping
 
 import (
 	"bytes"
+	"errors"
 	"testing"
 	"time"
 )
@@ -111,6 +112,26 @@ func TestOutputShow2(t *testing.T) {
 		"    1 ap-east-1       Asia Pacific (Hong Kong)         25.00 ms        26.00 ms        25.50 ms\n"
 	if got != want {
 		t.Errorf("Show2 failed:\ngot =%q\nwant=%q", got, want)
+	}
+}
+
+type errorWriter struct {
+	err error
+}
+
+func (w errorWriter) Write([]byte) (int, error) {
+	return 0, w.err
+}
+
+func TestOutputWriteError(t *testing.T) {
+	want := errors.New("write failed")
+	lo := NewOutput(0, 0)
+	lo.w = errorWriter{err: want}
+	regions := GetRegions()[:1]
+
+	err := lo.Write(&regions)
+	if !errors.Is(err, want) {
+		t.Errorf("Write error: got %v, want %v", err, want)
 	}
 }
 

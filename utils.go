@@ -56,27 +56,38 @@ func NewOutput(level, repeats int) *LatencyOutput {
 	}
 }
 
-func (lo *LatencyOutput) show(regions *AWSRegions) {
+func (lo *LatencyOutput) show(regions *AWSRegions) error {
 	for _, r := range *regions {
-		fmt.Fprintf(lo.w, "%-15s %-s\n", r.Code, r.Name)
+		if _, err := fmt.Fprintf(lo.w, "%-15s %-s\n", r.Code, r.Name); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
-func (lo *LatencyOutput) show0(regions *AWSRegions) {
+func (lo *LatencyOutput) show0(regions *AWSRegions) error {
 	for _, r := range *regions {
-		fmt.Fprintf(lo.w, "%-25s %20s\n", r.Name, r.GetLatencyStr())
+		if _, err := fmt.Fprintf(lo.w, "%-25s %20s\n", r.Name, r.GetLatencyStr()); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
-func (lo *LatencyOutput) show1(regions *AWSRegions) {
+func (lo *LatencyOutput) show1(regions *AWSRegions) error {
 	outFmt := "%5v %-15s %-30s %20s\n"
-	fmt.Fprintf(lo.w, outFmt, "", "Code", "Region", "Latency")
-	for i, r := range *regions {
-		fmt.Fprintf(lo.w, outFmt, i, r.Code, r.Name, r.GetLatencyStr())
+	if _, err := fmt.Fprintf(lo.w, outFmt, "", "Code", "Region", "Latency"); err != nil {
+		return err
 	}
+	for i, r := range *regions {
+		if _, err := fmt.Fprintf(lo.w, outFmt, i, r.Code, r.Name, r.GetLatencyStr()); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-func (lo *LatencyOutput) show2(regions *AWSRegions) {
+func (lo *LatencyOutput) show2(regions *AWSRegions) error {
 	// format
 	outFmt := "%5v %-15s %-25s"
 	outFmt += strings.Repeat(" %15s", lo.Repeats) + " %15s\n"
@@ -88,7 +99,9 @@ func (lo *LatencyOutput) show2(regions *AWSRegions) {
 	outStr = append(outStr, "Avg Latency")
 
 	// show header
-	fmt.Fprintf(lo.w, outFmt, outStr...)
+	if _, err := fmt.Fprintf(lo.w, outFmt, outStr...); err != nil {
+		return err
+	}
 
 	// each region stats
 	for i, r := range *regions {
@@ -98,22 +111,32 @@ func (lo *LatencyOutput) show2(regions *AWSRegions) {
 				Duration2ms(r.Latencies[n])))
 		}
 		outData = append(outData, fmt.Sprintf("%.2f ms", r.GetLatency()))
-		fmt.Fprintf(lo.w, outFmt, outData...)
+		if _, err := fmt.Fprintf(lo.w, outFmt, outData...); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// Write prints data and returns any output error.
+func (lo *LatencyOutput) Write(regions *AWSRegions) error {
+	switch lo.Level {
+	case ShowOnlyRegions:
+		return lo.show(regions)
+	case 0:
+		return lo.show0(regions)
+	case 1:
+		return lo.show1(regions)
+	case 2:
+		return lo.show2(regions)
+	default:
+		return nil
 	}
 }
 
-// Show print data
+// Show prints data and ignores output errors for backward compatibility.
 func (lo *LatencyOutput) Show(regions *AWSRegions) {
-	switch lo.Level {
-	case ShowOnlyRegions:
-		lo.show(regions)
-	case 0:
-		lo.show0(regions)
-	case 1:
-		lo.show1(regions)
-	case 2:
-		lo.show2(regions)
-	}
+	_ = lo.Write(regions)
 }
 
 // GetRegions returns a list of regions

@@ -3,9 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"math/rand"
 	"os"
-	"time"
 
 	"github.com/ekalinin/awsping"
 )
@@ -38,8 +36,6 @@ func main() {
 		}
 		os.Exit(0)
 	}
-
-	rand.Seed(time.Now().UnixNano())
 
 	awsping.CalcLatency(regions, *repeats, *useHTTP, *useHTTPS, *service)
 	lo := awsping.NewOutput(*verbose, *repeats)

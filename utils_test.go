@@ -42,7 +42,9 @@ func TestOutputShowOnlyRegions(t *testing.T) {
 	lo.w = &b
 
 	regions := GetRegions()[:2]
-	lo.Show(&regions)
+	if err := lo.Show(&regions); err != nil {
+		t.Fatalf("Show error: %v", err)
+	}
 
 	got := b.String()
 	want := "af-south-1      Africa (Cape Town)\n" +
@@ -63,7 +65,9 @@ func TestOutputShow0(t *testing.T) {
 	regions[0].Latencies = []time.Duration{15 * time.Millisecond}
 	regions[1].Latencies = []time.Duration{25 * time.Millisecond}
 
-	lo.Show(&regions)
+	if err := lo.Show(&regions); err != nil {
+		t.Fatalf("Show error: %v", err)
+	}
 
 	want := "Africa (Cape Town)                    15.00 ms\n" +
 		"Asia Pacific (Hong Kong)              25.00 ms\n"
@@ -83,7 +87,9 @@ func TestOutputShow1(t *testing.T) {
 	regions[0].Latencies = []time.Duration{15 * time.Millisecond}
 	regions[1].Latencies = []time.Duration{25 * time.Millisecond}
 
-	lo.Show(&regions)
+	if err := lo.Show(&regions); err != nil {
+		t.Fatalf("Show error: %v", err)
+	}
 
 	got := b.String()
 	want := "      Code            Region                                      Latency\n" +
@@ -104,7 +110,9 @@ func TestOutputShow2(t *testing.T) {
 	regions[0].Latencies = []time.Duration{15 * time.Millisecond, 17 * time.Millisecond}
 	regions[1].Latencies = []time.Duration{25 * time.Millisecond, 26 * time.Millisecond}
 
-	lo.Show(&regions)
+	if err := lo.Show(&regions); err != nil {
+		t.Fatalf("Show error: %v", err)
+	}
 
 	got := b.String()
 	want := "      Code            Region                             Try #1          Try #2     Avg Latency\n" +
@@ -133,7 +141,9 @@ func TestOutputShow2PreservesFailedAttemptPositions(t *testing.T) {
 		{Err: errors.New("timeout")},
 	}
 
-	lo.Show(&regions)
+	if err := lo.Show(&regions); err != nil {
+		t.Fatalf("Show error: %v", err)
+	}
 
 	got := b.String()
 	want := "      Code            Region                             Try #1          Try #2          Try #3     Avg Latency\n" +
@@ -141,6 +151,26 @@ func TestOutputShow2PreservesFailedAttemptPositions(t *testing.T) {
 		"    1 ap-east-1       Asia Pacific (Hong Kong)                -               -               -               -\n"
 	if got != want {
 		t.Errorf("Show2 failed:\ngot =%q\nwant=%q", got, want)
+	}
+}
+
+type errorWriter struct {
+	err error
+}
+
+func (w errorWriter) Write([]byte) (int, error) {
+	return 0, w.err
+}
+
+func TestOutputShowError(t *testing.T) {
+	want := errors.New("write failed")
+	lo := NewOutput(0, 0)
+	lo.w = errorWriter{err: want}
+	regions := GetRegions()[:1]
+
+	err := lo.Show(&regions)
+	if !errors.Is(err, want) {
+		t.Errorf("Show error: got %v, want %v", err, want)
 	}
 }
 

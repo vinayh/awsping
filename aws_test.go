@@ -41,7 +41,7 @@ func (r *testTarget) GetIP() (*net.TCPAddr, error) {
 func TestAWSRegionCheckLatencyHTTP(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(15 * time.Millisecond)
-		fmt.Fprintln(w, "X")
+		_, _ = fmt.Fprintln(w, "X")
 	}))
 	defer ts.Close()
 

@@ -2,6 +2,7 @@ package awsping
 
 import (
 	"bytes"
+	"errors"
 	"testing"
 	"time"
 )
@@ -114,6 +115,35 @@ func TestOutputShow2(t *testing.T) {
 	}
 }
 
+func TestOutputShow2PreservesFailedAttemptPositions(t *testing.T) {
+	var b bytes.Buffer
+
+	lo := NewOutput(2, 3)
+	lo.w = &b
+
+	regions := GetRegions()[:2]
+	regions[0].Attempts = []AttemptResult{
+		{Err: errors.New("timeout")},
+		{Latency: 17 * time.Millisecond},
+		{Err: errors.New("connection refused")},
+	}
+	regions[1].Attempts = []AttemptResult{
+		{Err: errors.New("timeout")},
+		{Err: errors.New("timeout")},
+		{Err: errors.New("timeout")},
+	}
+
+	lo.Show(&regions)
+
+	got := b.String()
+	want := "      Code            Region                             Try #1          Try #2          Try #3     Avg Latency\n" +
+		"    0 af-south-1      Africa (Cape Town)                      -        17.00 ms               -        17.00 ms\n" +
+		"    1 ap-east-1       Asia Pacific (Hong Kong)                -               -               -               -\n"
+	if got != want {
+		t.Errorf("Show2 failed:\ngot =%q\nwant=%q", got, want)
+	}
+}
+
 func TestCalcLatency(t *testing.T) {
 
 	regions := GetRegions()[:3]
@@ -148,5 +178,24 @@ func TestCalcLatency(t *testing.T) {
 		checkSort(0, 2)
 		checkSort(1, 0)
 		checkSort(2, 1)
+	}
+}
+
+func TestCalcLatencySortsFailedRegionsLast(t *testing.T) {
+	regions := GetRegions()[:3]
+	regions[0].Request = &testRequest{err: errors.New("first failed")}
+	regions[1].Request = &testRequest{duration: 7 * time.Millisecond}
+	regions[2].Request = &testRequest{err: errors.New("third failed")}
+
+	CalcLatency(regions, 1, false, false, "ec2")
+
+	if got, want := regions[0].Name, "Asia Pacific (Hong Kong)"; got != want {
+		t.Errorf("first region: got %q, want %q", got, want)
+	}
+	if got, want := regions[1].Name, "Africa (Cape Town)"; got != want {
+		t.Errorf("second region: got %q, want %q", got, want)
+	}
+	if got, want := regions[2].Name, "Asia Pacific (Tokyo)"; got != want {
+		t.Errorf("third region: got %q, want %q", got, want)
 	}
 }

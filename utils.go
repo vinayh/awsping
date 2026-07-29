@@ -94,10 +94,22 @@ func (lo *LatencyOutput) show2(regions *AWSRegions) {
 	for i, r := range *regions {
 		outData := []interface{}{strconv.Itoa(i), r.Code, r.Name}
 		for n := 0; n < lo.Repeats; n++ {
-			outData = append(outData, fmt.Sprintf("%.2f ms",
-				Duration2ms(r.Latencies[n])))
+			switch {
+			case n < len(r.Attempts) && r.Attempts[n].Err == nil:
+				outData = append(outData, fmt.Sprintf("%.2f ms",
+					Duration2ms(r.Attempts[n].Latency)))
+			case len(r.Attempts) == 0 && n < len(r.Latencies):
+				outData = append(outData, fmt.Sprintf("%.2f ms",
+					Duration2ms(r.Latencies[n])))
+			default:
+				outData = append(outData, "-")
+			}
 		}
-		outData = append(outData, fmt.Sprintf("%.2f ms", r.GetLatency()))
+		if latency, ok := r.AverageLatency(); ok {
+			outData = append(outData, fmt.Sprintf("%.2f ms", Duration2ms(latency)))
+		} else {
+			outData = append(outData, "-")
+		}
 		fmt.Fprintf(lo.w, outFmt, outData...)
 	}
 }
@@ -175,5 +187,5 @@ func CalcLatency(regions AWSRegions, repeats int, useHTTP bool, useHTTPS bool, s
 		wg.Wait()
 	}
 
-	sort.Sort(regions)
+	sort.Stable(regions)
 }

@@ -32,7 +32,7 @@ func main() {
 
 	if *listRegions {
 		lo := awsping.NewOutput(awsping.ShowOnlyRegions, 0)
-		if err := lo.Write(&regions); err != nil {
+		if err := lo.Show(&regions); err != nil {
 			_, _ = fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
@@ -43,7 +43,7 @@ func main() {
 
 	awsping.CalcLatency(regions, *repeats, *useHTTP, *useHTTPS, *service)
 	lo := awsping.NewOutput(*verbose, *repeats)
-	if err := lo.Write(&regions); err != nil {
+	if err := lo.Show(&regions); err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}

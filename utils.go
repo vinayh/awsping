@@ -118,8 +118,8 @@ func (lo *LatencyOutput) show2(regions *AWSRegions) error {
 	return nil
 }
 
-// Write prints data and returns any output error.
-func (lo *LatencyOutput) Write(regions *AWSRegions) error {
+// Show prints data and returns any output error.
+func (lo *LatencyOutput) Show(regions *AWSRegions) error {
 	switch lo.Level {
 	case ShowOnlyRegions:
 		return lo.show(regions)
@@ -132,11 +132,6 @@ func (lo *LatencyOutput) Write(regions *AWSRegions) error {
 	default:
 		return nil
 	}
-}
-
-// Show prints data and ignores output errors for backward compatibility.
-func (lo *LatencyOutput) Show(regions *AWSRegions) {
-	_ = lo.Write(regions)
 }
 
 // GetRegions returns a list of regions

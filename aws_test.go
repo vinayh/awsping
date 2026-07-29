@@ -138,7 +138,7 @@ func TestAWSRegionCheckLatencyTCP(t *testing.T) {
 	want := 15.0
 
 	if got < want || got > want+1 {
-		t.Errorf("failed:\ngot=%f\nwant=%f\nregion=%q", got, want, regions[0])
+		t.Errorf("failed:\ngot=%f\nwant=%f\nregion=%v", got, want, regions[0])
 	}
 
 	if regions[0].Error != nil {
@@ -248,7 +248,7 @@ func TestAWSRegionsLen(t *testing.T) {
 	want := len(regions)
 
 	if got != want {
-		t.Errorf("failed:\ngot=%q\nwant=%q", got, want)
+		t.Errorf("failed:\ngot=%d\nwant=%d", got, want)
 	}
 }
 
@@ -259,7 +259,7 @@ func TestAWSRegionsLess(t *testing.T) {
 	regions[1].Latencies = []time.Duration{25 * time.Millisecond}
 
 	if !regions.Less(0, 1) {
-		t.Errorf("failed: not less, regions=%q", regions)
+		t.Errorf("failed: not less, regions=%v", regions)
 	}
 }
 
@@ -286,7 +286,7 @@ func TestAWSRegionsSwap(t *testing.T) {
 	regions.Swap(0, 3)
 
 	if len(regions[0].Latencies) != 0 {
-		t.Errorf("failed: not swapped, regions=%q", regions)
+		t.Errorf("failed: not swapped, regions=%v", regions)
 	}
 }
 
@@ -297,7 +297,7 @@ func TestAWSRegionsSetService(t *testing.T) {
 	regions.SetService(service)
 
 	if regions[0].Service != service || regions[len(regions)-1].Service != service {
-		t.Errorf("failed: not set, regions=%q, service=%s", regions, service)
+		t.Errorf("failed: not set, regions=%v, service=%s", regions, service)
 	}
 }
 
@@ -308,7 +308,7 @@ func TestAWSRegionsSetCheckType(t *testing.T) {
 	regions.SetCheckType(checkType)
 
 	if regions[0].CheckType != checkType || regions[len(regions)-1].CheckType != checkType {
-		t.Errorf("failed: not set, regions=%q, checkType=%d", regions, checkType)
+		t.Errorf("failed: not set, regions=%v, checkType=%d", regions, checkType)
 	}
 }
 
